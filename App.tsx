@@ -157,7 +157,7 @@ const App = (): React.JSX.Element => {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Created by Chris & Bastian Ballance
+            Created by Sebastian Ballance - bash at ballance dot it
           </Text>
         </View>
       </ScrollView>

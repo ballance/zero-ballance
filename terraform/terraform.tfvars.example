@@ -1,0 +1,7 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+aws_region = "us-east-1"
+domain_name = "zeroballance.bastionforge.com"
+hosted_zone_id = "Z1234567890ABC"  # Replace with your actual hosted zone ID
+environment = "production"
+project_name = "zero-ballance"
