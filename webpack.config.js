@@ -28,9 +28,27 @@ module.exports = {
     },
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'web-build'),
     publicPath: '/',
+    clean: true,
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+  performance: {
+    hints: 'warning',
+    maxAssetSize: 512000,
+    maxEntrypointSize: 512000,
   },
   devServer: {
     static: {
