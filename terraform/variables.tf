@@ -7,11 +7,10 @@ variable "aws_region" {
 variable "domain_name" {
   description = "Domain name for the website"
   type        = string
-  default     = "zeroballance.bastionforge.com"
 }
 
 variable "hosted_zone_id" {
-  description = "Route 53 hosted zone ID for bastionforge.com"
+  description = "Route 53 hosted zone ID for your domain"
   type        = string
 }
 
