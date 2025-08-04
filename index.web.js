@@ -8,5 +8,5 @@ AppRegistry.registerComponent(appName, () => App);
 // Run the app
 AppRegistry.runApplication(appName, {
   initialProps: {},
-  rootTag: document.getElementById('react-root'),
+  rootTag: document.getElementById('root'),
 });

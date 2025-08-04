@@ -10,6 +10,7 @@ import {
   TextInput,
   Alert,
   Vibration,
+  Animated,
 } from 'react-native';
 
 const App = (): React.JSX.Element => {
@@ -17,7 +18,127 @@ const App = (): React.JSX.Element => {
   const [isActive, setIsActive] = useState(false);
   const [inputMinutes, setInputMinutes] = useState('5');
   const [inputSeconds, setInputSeconds] = useState('0');
+  const [showBanana, setShowBanana] = useState(false);
+  const [danceFrame, setDanceFrame] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const bananaRotation = useRef(new Animated.Value(0)).current;
+  const bananaScale = useRef(new Animated.Value(1)).current;
+  const bananaY = useRef(new Animated.Value(0)).current;
+  const bananaX = useRef(new Animated.Value(0)).current;
+
+  const getBananaMan = (frame: number) => {
+    const frames = [
+      // Frame 0 - Classic pose
+      `   🍌   
+  \\o/  
+   |   
+  / \\  `,
+      // Frame 1 - Left lean
+      `  🍌    
+ \\o    
+  |\\   
+ /  \\  `,
+      // Frame 2 - Right lean  
+      `    🍌  
+    o/ 
+   /|  
+  / \\ `,
+      // Frame 3 - Arms up
+      `   🍌   
+   \\o/ 
+    |  
+   /|\\ `,
+      // Frame 4 - Kick left
+      `   🍌   
+  /o\\  
+   |   
+  /    `,
+      // Frame 5 - Kick right
+      `   🍌   
+  /o\\  
+   |   
+    \\ `,
+    ];
+    return frames[frame % frames.length];
+  };
+
+  const startBananaDance = () => {
+    setShowBanana(true);
+    setDanceFrame(0);
+    
+    // Classic banana bounce
+    const bounceAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bananaY, {
+          toValue: -20,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bananaY, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Side-to-side dance movement
+    const wiggleAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bananaX, {
+          toValue: 15,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bananaX, {
+          toValue: -15,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    // Gentle scale pulsing
+    const scaleAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bananaScale, {
+          toValue: 1.1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bananaScale, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    bounceAnimation.start();
+    wiggleAnimation.start();
+    scaleAnimation.start();
+
+    // Animate through dance frames
+    let frameCounter = 0;
+    const frameInterval = setInterval(() => {
+      setDanceFrame(frameCounter % 6);
+      frameCounter++;
+    }, 200); // Change frame every 200ms
+
+    // Stop the banana dance after 6 seconds
+    setTimeout(() => {
+      bounceAnimation.stop();
+      wiggleAnimation.stop();
+      scaleAnimation.stop();
+      clearInterval(frameInterval);
+      setShowBanana(false);
+      setDanceFrame(0);
+      bananaRotation.setValue(0);
+      bananaScale.setValue(1);
+      bananaY.setValue(0);
+      bananaX.setValue(0);
+    }, 6000);
+  };
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -27,7 +148,8 @@ const App = (): React.JSX.Element => {
     } else if (timeLeft === 0 && isActive) {
       setIsActive(false);
       Vibration.vibrate([0, 500, 200, 500]);
-      Alert.alert("⏰ Time's Up!", 'Your countdown has reached zero!');
+      startBananaDance();
+      Alert.alert("🍌 Time's Up!", 'Your countdown has reached zero! Enjoy the dancing banana!');
     }
 
     return () => {
@@ -94,6 +216,21 @@ const App = (): React.JSX.Element => {
 
         <View style={styles.timerContainer}>
           <Text style={styles.timerDisplay}>{formatTime(timeLeft)}</Text>
+          {showBanana && (
+            <Animated.View
+              style={[
+                styles.bananaContainer,
+                {
+                  transform: [
+                    { scale: bananaScale },
+                    { translateY: bananaY },
+                    { translateX: bananaX },
+                  ],
+                },
+              ]}>
+              <Text style={styles.bananaMan}>{getBananaMan(danceFrame)}</Text>
+            </Animated.View>
+          )}
         </View>
 
         <View style={styles.inputContainer}>
@@ -194,6 +331,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#00ff88',
     fontFamily: 'monospace',
+  },
+  bananaContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: 80,
+  },
+  bananaMan: {
+    fontSize: 20,
+    textAlign: 'center',
+    fontFamily: 'monospace',
+    color: '#FFD700',
+    lineHeight: 24,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   inputContainer: {
     alignItems: 'center',

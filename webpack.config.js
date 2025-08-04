@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './index.web.js',
@@ -50,6 +51,13 @@ module.exports = {
     maxAssetSize: 512000,
     maxEntrypointSize: 512000,
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: path.resolve(__dirname, 'index.html'),
+      filename: 'index.html',
+      inject: 'body',
+    }),
+  ],
   devServer: {
     static: {
       directory: path.join(__dirname, 'web-build'),
