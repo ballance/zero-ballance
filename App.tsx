@@ -21,10 +21,11 @@ const App = (): React.JSX.Element => {
   const [showBanana, setShowBanana] = useState(false);
   const [danceFrame, setDanceFrame] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const bananaRotation = useRef(new Animated.Value(0)).current;
-  const bananaScale = useRef(new Animated.Value(1)).current;
-  const bananaY = useRef(new Animated.Value(0)).current;
-  const bananaX = useRef(new Animated.Value(0)).current;
+  const bananaAnimation = useRef({
+    scale: new Animated.Value(1),
+    y: new Animated.Value(0),
+    x: new Animated.Value(0),
+  }).current;
 
   const getBananaMan = (frame: number) => {
     const frames = [
@@ -69,14 +70,14 @@ const App = (): React.JSX.Element => {
     // Classic banana bounce
     const bounceAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(bananaY, {
-          toValue: -20,
-          duration: 200,
+        Animated.timing(bananaAnimation.y, {
+          toValue: -30,
+          duration: 300,
           useNativeDriver: true,
         }),
-        Animated.timing(bananaY, {
+        Animated.timing(bananaAnimation.y, {
           toValue: 0,
-          duration: 200,
+          duration: 300,
           useNativeDriver: true,
         }),
       ])
@@ -85,30 +86,30 @@ const App = (): React.JSX.Element => {
     // Side-to-side dance movement
     const wiggleAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(bananaX, {
-          toValue: 15,
-          duration: 250,
+        Animated.timing(bananaAnimation.x, {
+          toValue: 20,
+          duration: 400,
           useNativeDriver: true,
         }),
-        Animated.timing(bananaX, {
-          toValue: -15,
-          duration: 250,
+        Animated.timing(bananaAnimation.x, {
+          toValue: -20,
+          duration: 400,
           useNativeDriver: true,
         }),
       ])
     );
 
-    // Gentle scale pulsing
+    // Scale pulsing
     const scaleAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(bananaScale, {
-          toValue: 1.1,
-          duration: 400,
+        Animated.timing(bananaAnimation.scale, {
+          toValue: 1.2,
+          duration: 500,
           useNativeDriver: true,
         }),
-        Animated.timing(bananaScale, {
+        Animated.timing(bananaAnimation.scale, {
           toValue: 1,
-          duration: 400,
+          duration: 500,
           useNativeDriver: true,
         }),
       ])
@@ -123,7 +124,7 @@ const App = (): React.JSX.Element => {
     const frameInterval = setInterval(() => {
       setDanceFrame(frameCounter % 6);
       frameCounter++;
-    }, 200); // Change frame every 200ms
+    }, 200);
 
     // Stop the banana dance after 6 seconds
     setTimeout(() => {
@@ -133,10 +134,11 @@ const App = (): React.JSX.Element => {
       clearInterval(frameInterval);
       setShowBanana(false);
       setDanceFrame(0);
-      bananaRotation.setValue(0);
-      bananaScale.setValue(1);
-      bananaY.setValue(0);
-      bananaX.setValue(0);
+      
+      // Reset banana animation
+      bananaAnimation.scale.setValue(1);
+      bananaAnimation.y.setValue(0);
+      bananaAnimation.x.setValue(0);
     }, 6000);
   };
 
@@ -220,11 +222,12 @@ const App = (): React.JSX.Element => {
             <Animated.View
               style={[
                 styles.bananaContainer,
+                styles.bananaCentered,
                 {
                   transform: [
-                    { scale: bananaScale },
-                    { translateY: bananaY },
-                    { translateX: bananaX },
+                    { scale: bananaAnimation.scale },
+                    { translateY: bananaAnimation.y },
+                    { translateX: bananaAnimation.x },
                   ],
                 },
               ]}>
@@ -309,49 +312,82 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 50,
+    backgroundColor: '#0f0f0f',
+    marginBottom: 20,
+    borderBottomWidth: 2,
+    borderBottomColor: '#00ff88',
   },
   title: {
-    fontSize: 36,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: 8,
+    marginBottom: 12,
+    textShadowColor: '#00ff88',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#cccccc',
     fontStyle: 'italic',
+    marginBottom: 10,
   },
   timerContainer: {
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 60,
+    backgroundColor: '#111111',
+    marginHorizontal: 20,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: '#00ff88',
+    shadowColor: '#00ff88',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 10,
   },
   timerDisplay: {
-    fontSize: 64,
+    fontSize: 96,
     fontWeight: 'bold',
     color: '#00ff88',
     fontFamily: 'monospace',
+    textShadowColor: '#004422',
+    textShadowOffset: { width: 3, height: 3 },
+    textShadowRadius: 6,
+    marginBottom: 20,
   },
   bananaContainer: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 80,
+  },
+  bananaCentered: {
+    top: '50%',
+    left: '50%',
+    marginTop: -40,
+    marginLeft: -40,
   },
   bananaMan: {
-    fontSize: 20,
+    fontSize: 32,
     textAlign: 'center',
     fontFamily: 'monospace',
     color: '#FFD700',
-    lineHeight: 24,
+    lineHeight: 36,
     textShadowColor: '#000',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 3,
   },
   inputContainer: {
     alignItems: 'center',
     paddingHorizontal: 40,
+    paddingVertical: 30,
     marginBottom: 30,
+    backgroundColor: '#151515',
+    marginHorizontal: 20,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#333333',
   },
   inputLabel: {
     fontSize: 18,
@@ -366,19 +402,21 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#333333',
     color: '#ffffff',
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    width: 80,
-    height: 50,
-    borderRadius: 8,
-    marginHorizontal: 5,
+    width: 90,
+    height: 60,
+    borderRadius: 12,
+    marginHorizontal: 8,
+    borderWidth: 2,
+    borderColor: '#555555',
   },
   inputSeparator: {
-    fontSize: 24,
-    color: '#ffffff',
+    fontSize: 32,
+    color: '#00ff88',
     fontWeight: 'bold',
-    marginHorizontal: 10,
+    marginHorizontal: 15,
   },
   inputLabels: {
     flexDirection: 'row',
@@ -406,21 +444,29 @@ const styles = StyleSheet.create({
   },
   presetButton: {
     backgroundColor: '#333333',
-    padding: 15,
-    borderRadius: 8,
+    padding: 20,
+    borderRadius: 12,
     width: '48%',
-    marginBottom: 10,
+    marginBottom: 15,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#555555',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   presetText: {
     color: '#ffffff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   presetTime: {
     color: '#00ff88',
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: '600',
   },
   controlsContainer: {
     flexDirection: 'row',
@@ -430,32 +476,48 @@ const styles = StyleSheet.create({
   },
   startButton: {
     backgroundColor: '#00ff88',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    minWidth: 120,
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    minWidth: 140,
     alignItems: 'center',
+    shadowColor: '#00ff88',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   pauseButton: {
     backgroundColor: '#ff8800',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    minWidth: 120,
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    minWidth: 140,
     alignItems: 'center',
+    shadowColor: '#ff8800',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   resetButton: {
     backgroundColor: '#ff4444',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
-    minWidth: 120,
+    paddingVertical: 20,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    minWidth: 140,
     alignItems: 'center',
+    shadowColor: '#ff4444',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   buttonText: {
     color: '#ffffff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    letterSpacing: 1,
   },
   footer: {
     alignItems: 'center',

@@ -63,7 +63,7 @@ module.exports = {
       directory: path.join(__dirname, 'web-build'),
     },
     compress: true,
-    port: 3000,
+    port: 3030,
     historyApiFallback: true,
   },
 };
